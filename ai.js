@@ -1,10 +1,10 @@
 import { attack } from './game.js';
 import { isGameOver } from './game.js';
-import { showGameOverModal } from './ui.js';
+import { showGameOverModal, updateMessage } from './ui.js';
 
 let lastHit = null;
 
-export function enemyTurn(playerBoardState, playerShips) {
+export function enemyTurn(playerBoardState, playerShips, callback) {
   let row, col, successfulAttack;
 
   if (lastHit) {
@@ -40,5 +40,10 @@ export function enemyTurn(playerBoardState, playerShips) {
     return;
   }
 
-  return successfulAttack;
+  if (successfulAttack) {
+    updateMessage('Противник попал! Его следующий ход.');
+    setTimeout(() => enemyTurn(playerBoardState, playerShips, callback), 1000);
+  } else {
+    callback();
+  }
 }
