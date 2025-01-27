@@ -106,8 +106,8 @@ function clearBoard(board) {
   }));
 }
 
-function placeShipsRandomly(board) {
-  playerShips.forEach(ship => {
+function placeShipsRandomly(board, ships) {
+  ships.forEach(ship => {
     let placed = false;
 
     while (!placed) {
@@ -123,7 +123,7 @@ function placeShipsRandomly(board) {
   });
 }
 
-function isGameOver(board, ships) {
+function isGameOver(ships) {
   return ships.every(ship =>
     ship.positions.every(cell => cell.hit)
   );
@@ -165,8 +165,9 @@ function enemyTurn() {
     do {
       row = Math.floor(Math.random() * BOARD_SIZE);
       col = Math.floor(Math.random() * BOARD_SIZE);
-      successfulAttack = attack(playerBoardState, row, col);
     } while (playerBoardState[row][col].hit);
+
+    successfulAttack = attack(playerBoardState, row, col);
   }
 
   if (successfulAttack) {
@@ -175,7 +176,7 @@ function enemyTurn() {
     lastHit = null;
   }
 
-  if (isGameOver(playerBoardState, playerShips)) {
+  if (isGameOver(playerShips)) {
     showGameOverModal('Противник победил!');
     enemyBoard.removeEventListener('click', handlePlayerTurn);
     return;
@@ -200,18 +201,18 @@ function handlePlayerTurn(e) {
   if (!cell.classList.contains('hit') && !cell.classList.contains('miss')) {
     const hit = attack(enemyBoardState, row, col);
 
-    if (isGameOver(enemyBoardState, enemyShips)) {
-      showGameOverModal('Вы победили!');
-      enemyBoard.removeEventListener('click', handlePlayerTurn);
-      return;
-    }
-
-    if (!hit) {
+    if (hit) {
+      if (isGameOver(enemyShips)) {
+        showGameOverModal('Вы победили!');
+        enemyBoard.removeEventListener('click', handlePlayerTurn);
+        return;
+      } else {
+        message.textContent = 'Попадание! Ваш ход!';
+      }
+    } else {
       isPlayerTurn = false;
       message.textContent = 'Промах! Ход противника.';
       setTimeout(enemyTurn, 1000);
-    } else {
-      message.textContent = 'Попадание! Ваш ход!';
     }
   }
 }
@@ -225,7 +226,7 @@ function showGameOverModal(messageText) {
 
 document.getElementById('random-placement').addEventListener('click', () => {
   clearBoard(playerBoardState);
-  placeShipsRandomly(playerBoardState);
+  placeShipsRandomly(playerBoardState, playerShips);
   manualPlacementMode = false;
   currentShipIndex = 0;
   document.getElementById('start-game').disabled = false;
@@ -241,7 +242,7 @@ document.getElementById('manual-placement').addEventListener('click', () => {
 });
 
 document.getElementById('start-game').addEventListener('click', () => {
-  placeShipsRandomly(enemyBoardState);
+  placeShipsRandomly(enemyBoardState, enemyShips);
   message.textContent = 'Игра началась! Ваш ход.';
   enemyBoard.addEventListener('click', handlePlayerTurn);
 });
