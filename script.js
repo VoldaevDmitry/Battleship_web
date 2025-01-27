@@ -23,6 +23,7 @@ let manualPlacementMode = false;
 let currentShipIndex = 0;
 let placementDirection = 'horizontal';
 let isPlayerTurn = true; // Флаг хода игрока
+let lastHit = null; // Для улучшенного ИИ
 
 const message = document.getElementById('message');
 const playerBoard = document.getElementById('player-board');
@@ -145,17 +146,39 @@ function attack(board, row, col) {
 function enemyTurn() {
   let row, col, successfulAttack;
 
-  do {
-    row = Math.floor(Math.random() * BOARD_SIZE);
-    col = Math.floor(Math.random() * BOARD_SIZE);
-    successfulAttack = attack(playerBoardState, row, col);
-  } while (successfulAttack);
-  
-  gameOver = isGameOver(playerBoardState, playerShips)
+  if (lastHit) {
+    // Стреляем вокруг последнего попадания
+    const directions = [[-1, 0], [1, 0], [0, -1], [0, 1]];
+    for (const [dr, dc] of directions) {
+      row = lastHit.row + dr;
+      col = lastHit.col + dc;
+
+      if (row >= 0 && row < BOARD_SIZE && col >= 0 && col < BOARD_SIZE && !playerBoardState[row][col].hit) {
+        successfulAttack = attack(playerBoardState, row, col);
+        if (successfulAttack) break;
+      }
+    }
+  }
+
+  if (!successfulAttack) {
+    // Если не удалось найти попадание, стреляем случайно
+    do {
+      row = Math.floor(Math.random() * BOARD_SIZE);
+      col = Math.floor(Math.random() * BOARD_SIZE);
+      successfulAttack = attack(playerBoardState, row, col);
+    } while (playerBoardState[row][col].hit);
+  }
+
+  if (successfulAttack) {
+    lastHit = { row, col };
+  } else {
+    lastHit = null;
+  }
 
   if (isGameOver(playerBoardState, playerShips)) {
-    message.textContent = 'Противник победил!';
+    showGameOverModal('Противник победил!');
     enemyBoard.removeEventListener('click', handlePlayerTurn);
+    return;
   }
 
   if (!successfulAttack) {
@@ -163,7 +186,7 @@ function enemyTurn() {
     message.textContent = 'Ваш ход!';
   } else {
     message.textContent = 'Противник попал! Его следующий ход.';
-    setTimeout(enemyTurn, 1000); // Противник продолжает
+    setTimeout(enemyTurn, 1000);
   }
 }
 
@@ -176,11 +199,9 @@ function handlePlayerTurn(e) {
 
   if (!cell.classList.contains('hit') && !cell.classList.contains('miss')) {
     const hit = attack(enemyBoardState, row, col);
-	
-	gameOver = isGameOver(enemyBoardState, enemyShips)
 
-    if (!isGameOver(enemyBoardState, enemyShips)) {
-      message.textContent = 'Вы победили!';
+    if (isGameOver(enemyBoardState, enemyShips)) {
+      showGameOverModal('Вы победили!');
       enemyBoard.removeEventListener('click', handlePlayerTurn);
       return;
     }
@@ -188,11 +209,18 @@ function handlePlayerTurn(e) {
     if (!hit) {
       isPlayerTurn = false;
       message.textContent = 'Промах! Ход противника.';
-      setTimeout(enemyTurn, 1000); // Противник начинает ход через секунду
+      setTimeout(enemyTurn, 1000);
     } else {
       message.textContent = 'Попадание! Ваш ход!';
     }
   }
+}
+
+function showGameOverModal(messageText) {
+  const modal = document.getElementById('game-over-modal');
+  const gameOverMessage = document.getElementById('game-over-message');
+  gameOverMessage.textContent = messageText;
+  modal.style.display = 'flex';
 }
 
 document.getElementById('random-placement').addEventListener('click', () => {
@@ -244,4 +272,8 @@ document.addEventListener('keydown', (e) => {
     placementDirection = placementDirection === 'horizontal' ? 'vertical' : 'horizontal';
     message.textContent = `Направление размещения: ${placementDirection === 'horizontal' ? 'Горизонтальное' : 'Вертикальное'}.`;
   }
+});
+
+document.getElementById('modal-restart').addEventListener('click', () => {
+  location.reload();
 });

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,12 +12,22 @@
     <button id="random-placement">Рандомная расстановка</button>
     <button id="manual-placement">Ручная расстановка</button>
     <button id="start-game" disabled>Начать игру</button>
+    <button id="restart-game" style="display: none;">Играть снова</button>
   </div>
   <div id="boards">
     <div id="player-board" class="board"></div>
     <div id="enemy-board" class="board"></div>
   </div>
   <p id="message"></p>
+
+  <!-- Модальное окно для завершения игры -->
+  <div id="game-over-modal" class="modal">
+    <div class="modal-content">
+      <p id="game-over-message"></p>
+      <button id="modal-restart">Играть снова</button>
+    </div>
+  </div>
+
   <script src="script.js"></script>
 </body>
 </html>
