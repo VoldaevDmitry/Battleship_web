@@ -23,7 +23,7 @@ io.on('connection', (socket) => {
   if (players.length === 2) {
     io.to(players[0]).emit('startGame', { player: 1 });
     io.to(players[1]).emit('startGame', { player: 2 });
-    players = []; // Очищаем очередь
+    //players = []; // Очищаем очередь
   }
 
   // Обработка хода игрока

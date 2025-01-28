@@ -31,7 +31,7 @@ let manualPlacementMode = true;
 let currentShipIndex = 0;
 let placementDirection = 'horizontal';
 
-const socket = io('http://localhost:3000');
+const socket = io('http://192.168.110.7:3000/'); // Замените на IP вашего сервера
 
 // Функция для обновления подсказок о кораблях
 function updateShipHints() {
@@ -64,7 +64,7 @@ export function initGame() {
       if (currentShipIndex >= playerShips.length) {
         manualPlacementMode = false;
         document.getElementById('start-game').disabled = false;
-        updateMessage('Корабли расставлены! Нажмите "Старт".');        
+        updateMessage('Корабли расставлены! Нажмите "Старт".');
         console.log('Player board state:', playerBoardState);
       }
 
@@ -106,10 +106,11 @@ export function initGame() {
 
     document.getElementById('enemy-board').addEventListener('click', handlePlayerTurn);
 
-    playerNumber=1
+    //playerNumber = 1;
   });
 }
 
+// Обработка хода игрока
 function handlePlayerTurn(e) {
   if (currentPlayer !== playerNumber) return; // Проверяем, чей сейчас ход
 
@@ -145,6 +146,67 @@ function handlePlayerTurn(e) {
   }
 }
 
+// Обработка событий от сервера
+socket.on('connected', (data) => {
+  console.log('Подключен к серверу. Ваш ID:', data.playerId);
+});
+
+socket.on('startGame', (data) => {
+  playerNumber = data.player;
+  currentPlayer = 1;
+
+  if (playerNumber === 1) {
+    updateMessage('Игра началась! Ваш ход.');
+  } else {
+    updateMessage('Игра началась! Ожидайте хода противника.');
+  }
+
+  // Рендерим доски для обоих игроков
+  renderBoard(document.getElementById('player-board'), playerBoardState);
+  renderBoard(document.getElementById('enemy-board'), enemyBoardState);
+
+  // Если это второй игрок, ждем хода первого
+  if (playerNumber === 2) {
+    document.getElementById('enemy-board').removeEventListener('click', handlePlayerTurn);
+  }
+});
+
+socket.on('opponentMove', (data) => {
+  const { row, col } = data;
+  const hit = attack(playerBoardState, row, col);
+
+  if (hit) {
+    if (isGameOver(playerShips)) {
+      showGameOverModal('Вы проиграли!');
+      socket.emit('gameOver', { message: 'Вы проиграли!' });
+      document.getElementById('enemy-board').removeEventListener('click', handlePlayerTurn);
+      return;
+    } else {
+      updateMessage('Противник попал! Ваш ход.');
+    }
+  } else {
+    updateMessage('Противник промахнулся! Ваш ход.');
+  }
+
+  // Активируем возможность хода для текущего игрока
+  document.getElementById('enemy-board').addEventListener('click', handlePlayerTurn);
+});
+
+socket.on('switchTurn', (data) => {
+  currentPlayer = data.currentPlayer;
+  if (currentPlayer === playerNumber) {
+    updateMessage('Ваш ход!');
+  } else {
+    updateMessage('Ожидайте хода противника.');
+  }
+});
+
+socket.on('gameOver', (data) => {
+  showGameOverModal(data.message);
+  document.getElementById('enemy-board').removeEventListener('click', handlePlayerTurn);
+});
+
+// Функция для атаки
 export function attack(board, row, col) {
   const cell = board[row][col];
   if (cell.hit) return false;
@@ -159,6 +221,7 @@ export function attack(board, row, col) {
   }
 }
 
+// Функция для проверки завершения игры
 export function isGameOver(ships) {
   return ships.every(ship => ship.positions.every(cell => cell.hit));
 }
