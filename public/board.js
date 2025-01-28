@@ -15,7 +15,7 @@ export function renderBoard(boardElement, boardState) {
       boardElement.appendChild(cellElement);
 
       // Сохраняем ссылку на DOM-элемент в объекте клетки
-      cell.cellElement = cellElement;
+      cell.cell = cellElement;
     });
   });
 }
@@ -26,8 +26,8 @@ export function clearBoard(board) {
     cell.hit = false;
 
     // Проверяем, что cellElement существует
-    if (cell.cellElement) {
-      cell.cellElement.className = 'cell';
+    if (cell.cell) {
+      cell.cell.className = 'cell';
     } else {
       console.error('cellElement не определен для клетки:', cell);
     }

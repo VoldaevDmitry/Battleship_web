@@ -76,6 +76,7 @@ export function initGame() {
   document.getElementById('random-placement').addEventListener('click', () => {
     clearBoard(playerBoardState);
     playerShips.forEach(ship => ship.positions = []);
+    renderBoard(document.getElementById('setup-board'), playerBoardState); // Перерендерим доску
     placeShipsRandomly(playerBoardState, playerShips);
     updateMessage('Корабли расставлены автоматически!');
     document.getElementById('start-game').disabled = false;
@@ -92,14 +93,17 @@ export function initGame() {
 
     const mode = document.querySelector('input[name="mode"]:checked').value;
     if (mode === 'singleplayer') {
-      placeShipsRandomly(enemyBoardState, enemyShips);
       renderBoard(document.getElementById('enemy-board'), enemyBoardState);
+      placeShipsRandomly(enemyBoardState, enemyShips);
+      renderBoard(document.getElementById('enemy-board'), enemyBoardState); // Рендерим доску противника
       updateMessage('Игра началась! Ваш ход.');
     } else {
       updateMessage('Ожидайте второго игрока...');
     }
 
     document.getElementById('enemy-board').addEventListener('click', handlePlayerTurn);
+
+    playerNumber=1
   });
 
   document.getElementById('player-board').addEventListener('click', (e) => {

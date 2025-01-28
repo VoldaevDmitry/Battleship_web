@@ -43,6 +43,8 @@ export function placeShip(board, ship, row, col, direction) {
     // Добавляем класс 'ship' к DOM-элементу ячейки
     if (cell.cell) {
       cell.cell.classList.add('ship');
+    } else {
+      console.error('Cell DOM element is missing!', cell);
     }
   }
 }
