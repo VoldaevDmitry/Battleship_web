@@ -1,6 +1,7 @@
 import { createEmptyBoard, renderBoard, clearBoard } from './board.js';
 import { placeShipsRandomly, canPlaceShip, placeShip } from './ship.js';
 import { updateMessage, showGameOverModal } from './ui.js';
+import { enemyTurn } from './ai.js';
 
 const BOARD_SIZE = 10;
 
@@ -63,7 +64,8 @@ export function initGame() {
       if (currentShipIndex >= playerShips.length) {
         manualPlacementMode = false;
         document.getElementById('start-game').disabled = false;
-        updateMessage('Корабли расставлены! Нажмите "Старт".');
+        updateMessage('Корабли расставлены! Нажмите "Старт".');        
+        console.log('Player board state:', playerBoardState);
       }
 
       updateShipHints();
@@ -79,6 +81,7 @@ export function initGame() {
     renderBoard(document.getElementById('setup-board'), playerBoardState); // Перерендерим доску
     placeShipsRandomly(playerBoardState, playerShips);
     updateMessage('Корабли расставлены автоматически!');
+    console.log('Player board state:', playerBoardState);
     document.getElementById('start-game').disabled = false;
     updateShipHints();
   });
@@ -105,27 +108,6 @@ export function initGame() {
 
     playerNumber=1
   });
-
-  document.getElementById('player-board').addEventListener('click', (e) => {
-    if (!manualPlacementMode) return;
-
-    const cell = e.target;
-    const row = parseInt(cell.dataset.row);
-    const col = parseInt(cell.dataset.col);
-
-    if (canPlaceShip(playerBoardState, playerShips[currentShipIndex].size, row, col, placementDirection)) {
-      placeShip(playerBoardState, playerShips[currentShipIndex], row, col, placementDirection);
-      currentShipIndex++;
-
-      if (currentShipIndex >= playerShips.length) {
-        manualPlacementMode = false;
-        document.getElementById('start-game').disabled = false;
-        updateMessage('Корабли расставлены! Нажмите "Начать игру".');
-      }
-    } else {
-      updateMessage('Невозможно разместить корабль здесь!');
-    }
-  });
 }
 
 function handlePlayerTurn(e) {
@@ -149,6 +131,13 @@ function handlePlayerTurn(e) {
       }
     } else {
       updateMessage('Промах! Ход противника.');
+      // Если игра в режиме singleplayer, вызываем ход противника
+      const mode = document.querySelector('input[name="mode"]:checked').value;
+      if (mode === 'singleplayer') {
+        setTimeout(() => enemyTurn(playerBoardState, playerShips, () => {
+          updateMessage('Ваш ход!');
+        }), 1000);
+      }
     }
 
     // Отправляем ход на сервер

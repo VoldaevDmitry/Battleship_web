@@ -14,6 +14,16 @@ export function renderBoard(boardElement, boardState) {
       cellElement.dataset.col = colIndex;
       boardElement.appendChild(cellElement);
 
+      // Добавляем класс 'ship', если в ячейке есть корабль
+      if (cell.hasShip) {
+        cellElement.classList.add('ship');
+      }
+
+       // Добавляем класс 'hit' или 'miss', если ячейка была атакована
+       if (cell.hit) {
+        cellElement.classList.add(cell.hasShip ? 'hit' : 'miss');
+      }
+
       // Сохраняем ссылку на DOM-элемент в объекте клетки
       cell.cell = cellElement;
     });
