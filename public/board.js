@@ -1,6 +1,6 @@
 export function createEmptyBoard(size) {
   return Array.from({ length: size }, () =>
-    Array.from({ length: size }, () => ({ hasShip: false, hit: false }))
+    Array.from({ length: size }, () => ({ hasShip: false, hit: false, cellElement: null }))
   );
 }
 
@@ -13,7 +13,9 @@ export function renderBoard(boardElement, boardState) {
       cellElement.dataset.row = rowIndex;
       cellElement.dataset.col = colIndex;
       boardElement.appendChild(cellElement);
-      cell.cell = cellElement;
+
+      // Сохраняем ссылку на DOM-элемент в объекте клетки
+      cell.cellElement = cellElement;
     });
   });
 }
@@ -22,6 +24,12 @@ export function clearBoard(board) {
   board.forEach(row => row.forEach(cell => {
     cell.hasShip = false;
     cell.hit = false;
-    cell.cell.className = 'cell';
+
+    // Проверяем, что cellElement существует
+    if (cell.cellElement) {
+      cell.cellElement.className = 'cell';
+    } else {
+      console.error('cellElement не определен для клетки:', cell);
+    }
   }));
 }

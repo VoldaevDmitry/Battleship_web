@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Морской бой</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <h1>Морской бой</h1>
+
+  <!-- Шаг 1: Расстановка кораблей -->
+  <div id="setup-phase">
+    <h2 id="setup-title">Расставьте свои корабли</h2>
+
+    <!-- Подсказка с количеством кораблей -->
+    <div id="ship-hint">
+      <p>Четырехпалубный: <span id="ship-4">1</span></p>
+      <p>Трехпалубный: <span id="ship-3">2</span></p>
+      <p>Двухпалубный: <span id="ship-2">3</span></p>
+      <p>Однопалубный: <span id="ship-1">4</span></p>
+    </div>
+
+    <!-- Переключатель направления -->
+    <div id="direction-switch">
+      <label>
+        <input type="radio" name="direction" value="horizontal" checked> Горизонтально
+      </label>
+      <label>
+        <input type="radio" name="direction" value="vertical"> Вертикально
+      </label>
+    </div>
+
+    <!-- Кнопка автоматической расстановки -->
+    <button id="random-placement">Автоматическая расстановка</button>
+
+    <!-- Поле для расстановки кораблей -->
+    <div id="setup-board" class="board"></div>
+
+    <!-- Выбор режима игры -->
+    <div id="game-mode">
+      <label>
+        <input type="radio" name="mode" value="singleplayer" checked> Играть с компьютером
+      </label>
+      <label>
+        <input type="radio" name="mode" value="multiplayer"> Играть с другом
+      </label>
+    </div>
+
+    <!-- Кнопка старта -->
+    <button id="start-game" disabled>Старт</button>
+  </div>
+
+  <!-- Шаг 2: Игровой режим -->
+  <div id="game-phase" style="display: none;">
+    <div id="boards">
+      <div id="player-board" class="board"></div>
+      <div id="enemy-board" class="board"></div>
+    </div>
+    <p id="message"></p>
+  </div>
+
+  <!-- Модальное окно для завершения игры -->
+  <div id="game-over-modal" class="modal">
+    <div class="modal-content">
+      <p id="game-over-message"></p>
+      <button id="modal-restart">Играть снова</button>
+    </div>
+  </div>
+
+  <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+  <script type="module" src="game.js"></script>
+</body>
+</html>

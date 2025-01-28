@@ -39,7 +39,11 @@ export function placeShip(board, ship, row, col, direction) {
     const cell = board[currentRow][currentCol];
     cell.hasShip = true;
     ship.positions.push(cell);
-    cell.cell.classList.add('ship');
+
+    // Добавляем класс 'ship' к DOM-элементу ячейки
+    if (cell.cell) {
+      cell.cell.classList.add('ship');
+    }
   }
 }
 

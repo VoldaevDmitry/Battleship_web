@@ -93,3 +93,36 @@ button:disabled {
 .modal-content button {
   margin-top: 10px;
 }
+
+/* Новые стили для интерфейса расстановки */
+#setup-phase {
+  text-align: center;
+  margin: 20px;
+}
+
+#ship-hint {
+  margin: 20px;
+  font-size: 18px;
+}
+
+#direction-switch {
+  margin: 20px;
+}
+
+#direction-switch label {
+  margin: 0 10px;
+  font-size: 16px;
+}
+
+#game-mode {
+  margin: 20px;
+}
+
+#game-mode label {
+  margin: 0 10px;
+  font-size: 16px;
+}
+
+#setup-board {
+  margin: 20px auto;
+}
